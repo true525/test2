@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Othello Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    /* CSS スタイル */
+
+    /* ボード全体のスタイル */
+    #board-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    #reset-btn {
+      align-self: flex-start;
+      margin-bottom: 10px;
+    }
+
+    #board {
+      border: 1px solid #333;
+      display: grid;
+      grid-template-columns: repeat(8, 50px);
+      grid-template-rows: repeat(8, 50px);
+    }
+
+    /* 各マスのスタイル */
+    .cell {
+      width: 50px;
+      height: 50px;
+      background-color: #f7d08a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* プレイヤー1の駒のスタイル */
+    .player1 {
+      color: #e74c3c;
+    }
+
+    /* プレイヤー2の駒のスタイル */
+    .player2 {
+      color: #2c3e50;
+    }
+
+    /* スコア表示のスタイル */
+    #score {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    /* リスタートボタンのスタイル */
+    #restart {
+      margin-top: 10px;
+      font-size: 16px;
+      background-color: #e67e22;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    /* ゲーム履歴のスタイル */
+    #game-history {
+      margin-top: 20px;
+      max-width: 800px;
+      overflow-x: auto;
+    }
+
+    #game-history table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #game-history th,
+    #game-history td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* メニューボタンのスタイル */
+    #menu-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      color: #2c3e50;
+      cursor: pointer;
+    }
+
+    /* 設定パネルのスタイル */
+    #settings-panel {
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      display: none;
+    }
+
+    #settings-panel label {
+      display: block;
+      margin-bottom: 10px;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+
+    #settings-panel select {
+      margin-left: 10px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    /* レスポンシブデザイン */
+    @media screen and (max-width: 480px) {
+      #board {
+        grid-template-columns: repeat(8, 30px);
+        grid-template-rows: repeat(8, 30px);
+      }
+
+      .cell {
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="board-container">
+    <button id="reset-btn">Reset</button>
+    <div id="board"></div>
+    <i id="menu-btn" class="fas fa-bars"></i>
+    <div id="settings-panel">
+      <label>
+        Game Mode:
+        <select id="game-mode">
+          <option value="player-vs-player">Player vs Player</option>
+          <option value="player-vs-ai">Player vs AI</option>
+        </select>
+      </label>
+      <label>
+        Game Rule:
+        <select id="game-rule">
+          <option value="standard">Standard</option>
+          <option value="reversi">Reversi</option>
+          <option value="avalon-hill">Avalon Hill</option>
+        </select>
+      </label>
+      <label>
+        AI Difficulty:
+        <select id="ai-difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div id="score"></div>
+  <button id="restart">Restart</button>
+  <div id="game-history">
+    <h3>Game History</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Move</th>
+          <th>Player</th>
+          <th>Row</th>
+          <th>Col</th>
+        </tr>
+      </thead>
+      <tbody id="game-history-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // JavaScript コード (省略)
+
+    // メニューボタンのイベントリスナー
+    const menuBtn = document.getElementById("menu-btn");
+    const settingsPanel = document.getElementById("settings-panel");
+
+    menuBtn.addEventListener("click", () => {
+      settingsPanel.style.display = settingsPanel.style.display === "none" ? "block" : "none";
+    });
+
+    // 設定の変更イベントリスナー
+    const gameModeSelect = document.getElementById("game-mode");
+    const gameRuleSelect = document.getElementById("game-rule");
+    const aiDifficultySelect = document.getElementById("ai-difficulty");
+
+    gameModeSelect.addEventListener("change", () => {
+      gameMode = gameModeSelect.value;
+      init();
+    });
+
+    gameRuleSelect.addEventListener("change", () => {
+      gameRule = gameRuleSelect.value;
+      init();
+    });
+
+    aiDifficultySelect.addEventListener("change", () => {
+      aiDifficulty = aiDifficultySelect.value;
+    });
+  </script>
+</body>
+</html>
